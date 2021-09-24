@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Bora Finance</title>
+    </head>
+    <body>
+        <p> <b>Bora Finance</b> </p>
+        <p>The date today is {{.Date}}</p>
+
+        <form action="/submitProperty" method="POST">
+            <div>
+                <div>
+                    <input id="propertyName" name="propertyName" type="text">
+                    <label for="propertyName">Name of the property to list</label> 
+                </div>
+            </div>
+            <button type="submit" name="action">Submit</button>
+        </form>
+    </body>
+    <script>
+        console.log("hey")
+    </script>
+</html>

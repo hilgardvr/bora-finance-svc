@@ -1,47 +1,25 @@
 package main
 
 import (
-	"bytes"
-	"fmt"
-	"io/ioutil"
+	// "bytes"
+	// "encoding/json"
+	// "html/template"
+	// "io/ioutil"
 	"log"
-	"encoding/json"
 	"net/http"
+	// "time"
+	"github.com/hilgardvr/bora-finance-svc/controllers"
 )
 
-const port = ":8090"
-
-func test(w http.ResponseWriter, r *http.Request) {
-	reqBody, err := json.Marshal(5)
-
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	resp, err := http.Post(
-		"http://127.0.0.1:8080/api/new/contract/instance/a8718d09-bd90-4caa-b70d-7d3c8a21023b/endpoint/update", 
-		"application/json", 
-		bytes.NewBuffer(reqBody))
-
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	defer resp.Body.Close()
-
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	log.Println(string(body))
-}
+const port = ":9000"
 
 
 func main() {
-	fmt.Println("Hi")
-	http.HandleFunc("/", test)
+	// http.Handle("/", http.FileServer(http.Dir("./static")))
+	log.Println("server running on port", port)
+	http.HandleFunc("/", controllers.HomePage)
+	http.HandleFunc("/home", controllers.HomePage)
+	http.HandleFunc("/submitProperty", controllers.SubmitProperty)
+	http.HandleFunc("/test", controllers.Test)
 	log.Fatal(http.ListenAndServe(port, nil))
 }
