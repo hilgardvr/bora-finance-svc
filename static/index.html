@@ -10,12 +10,59 @@
         <form action="/submitProperty" method="POST">
             <div>
                 <div>
-                    <input id="propertyName" name="propertyName" type="text">
                     <label for="propertyName">Name of the property to list</label> 
+                    <input id="propertyName" name="propertyName" type="text">
+                </div>
+                <div>
+                    <label for="address">Address of the property to list</label> 
+                    <input id="address" name="address" type="text">
+                </div>
+                <div>
+                    <label for="owner">Owner of the property to list</label> 
+                    <input id="owner" name="owner" type="text">
+                </div>
+                <div>
+                    <label for="yield">Yield of the property to list</label> 
+                    <input id="yield" name="yield" type="text">
+                </div>
+                <div>
+                    <label for="value">Value of the property to list</label> 
+                    <input id="value" name="value" type="text">
+                </div>
+                <div>
+                    <label for="nfts">Number of NFTs of the property to list</label> 
+                    <input id="nfts" name="nfts" type="text">
                 </div>
             </div>
             <button type="submit" name="action">Submit</button>
         </form>
+
+        <div>
+            <table>
+                <tr>
+                    <th>Name<th>
+                    <th>Address</th>
+                    <th>Owners</th>
+                    <th>Yield</th>
+                    <th>Value</th>
+                    <th>NFTs</th>
+                </tr>
+                <br>
+            {{ with .Properties }}
+                {{ range .}}
+                <tr>
+                    <td>{{ .Name }}</td>
+                    <td>{{ .Address }}</td>
+                    <td>{{ .Owners }}</td>
+                    <td>{{ .Yield }}</td>
+                    <td>{{ .Value }}</td>
+                    <td>{{ .NFTs }}</td>
+                </tr>
+                <br>
+                {{ end }}
+            {{ end }}
+            </table>
+        </div>
     </body>
     <script>
         console.log("hey")

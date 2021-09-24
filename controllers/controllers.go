@@ -1,23 +1,27 @@
 package controllers
 
 import (
-	"bytes"
-	"encoding/json"
 	"html/template"
-	"io/ioutil"
 	"log"
-	"net/http"
+	"strconv"
+	"strings"
 	"time"
+	"net/http"
+
+	"github.com/hilgardvr/bora-finance-svc/service"
 )
 
 type PageVariables struct {
-	Date	string
+	Date		string
+	Properties 	[]service.PropertyDetails
 }
 
 func HomePage(w http.ResponseWriter, r *http.Request) {
 	now := time.Now()
+	allProperties := service.ListProperties()
 	pageVars := PageVariables{
 		Date: now.Format("02-01-2006"),
+		Properties: allProperties,
 	}
 
 	t, err := template.ParseFiles("./static/index.html")
@@ -35,40 +39,35 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 func SubmitProperty(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		r.ParseForm()
-		log.Println(r.FormValue("propertyName"))
-		ref := r.Header.Get("Referer")
-		log.Println(ref)
+		propName 	:= r.FormValue("propertyName")
+		address 	:= r.FormValue("address")
+		owner 		:= strings.Split(r.FormValue("owner"), ",")
+		yield, err	:= strconv.Atoi(r.FormValue("yield"))
+		if err != nil {
+			log.Fatalln(err)
+		}
+		value, err	:= strconv.Atoi(r.FormValue("value"))
+		if err != nil {
+			log.Fatalln(err)
+		}
+		nfts, err 	:= strconv.Atoi(r.FormValue("nfts"))
+		if err != nil {
+			log.Fatalln(err)
+		}
+		ref 		:= r.Header.Get("Referer")
+		propDetails := service.PropertyDetails{
+			Name	: propName,
+			Address : address,
+			Owners	: owner,
+			Yield	: yield,
+			Value	: value,
+			NFTs	: nfts,
+		}
+		// log.Println(ref)
+		service.AddProperty(propDetails)
 		http.Redirect(w, r, ref, http.StatusSeeOther)
 	} else {
 		w.WriteHeader(http.StatusBadRequest)
 	}
 }
 
-func Test(w http.ResponseWriter, r *http.Request) {
-
-	reqBody, err := json.Marshal(17)
-
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	resp, err := http.Post(
-		"http://127.0.0.1:8080/api/new/contract/instance/a8718d09-bd90-4caa-b70d-7d3c8a21023b/endpoint/update", 
-		"application/json", 
-		bytes.NewBuffer(reqBody))
-
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	defer resp.Body.Close()
-
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	log.Println(string(body))
-}

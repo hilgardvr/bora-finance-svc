@@ -20,6 +20,6 @@ func main() {
 	http.HandleFunc("/", controllers.HomePage)
 	http.HandleFunc("/home", controllers.HomePage)
 	http.HandleFunc("/submitProperty", controllers.SubmitProperty)
-	http.HandleFunc("/test", controllers.Test)
+	// http.HandleFunc("/test", controllers.Test)
 	log.Fatal(http.ListenAndServe(port, nil))
 }
