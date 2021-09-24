@@ -6,22 +6,14 @@ import (
 	"net/http"
 	"bytes"
 	"io/ioutil"
+	"github.com/hilgardvr/bora-finance-svc/models"
 )
 
-type PropertyDetails struct {
-	Name		string		`json: name`
-	Address 	string		`json: address`
-	Owners		[]string	`json: owners`
-	Yield		int			`json: yield`
-	Value 		int			`json: value`
-	NFTs		int			`json: nfts`
-}
-
 //todo replace with db
-var properties []PropertyDetails
+var properties []models.PropertyDetails
 
 //private func to update the oracle
-func updateOracle(properties []PropertyDetails) {
+func updateOracle(properties []models.PropertyDetails) {
 
 	propertiesLength := len(properties)
 
@@ -52,13 +44,13 @@ func updateOracle(properties []PropertyDetails) {
 	log.Println(string(body))
 }
 
-func AddProperty(propertyDetails PropertyDetails) {
+func AddProperty(propertyDetails models.PropertyDetails) {
 	properties = append(properties, propertyDetails)
 	updateOracle(properties)
 }
 
-func ListProperties() []PropertyDetails {
-	tmp := make([]PropertyDetails, len(properties))
+func ListProperties() []models.PropertyDetails {
+	tmp := make([]models.PropertyDetails, len(properties))
 	copy(tmp, properties)
 	return tmp
 }

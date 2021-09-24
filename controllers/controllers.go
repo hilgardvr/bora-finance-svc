@@ -9,30 +9,26 @@ import (
 	"net/http"
 
 	"github.com/hilgardvr/bora-finance-svc/service"
+	"github.com/hilgardvr/bora-finance-svc/models"
 )
-
-type PageVariables struct {
-	Date		string
-	Properties 	[]service.PropertyDetails
-}
 
 func HomePage(w http.ResponseWriter, r *http.Request) {
 	now := time.Now()
 	allProperties := service.ListProperties()
-	pageVars := PageVariables{
+	pageVars := models.PageVariables{
 		Date: now.Format("02-01-2006"),
 		Properties: allProperties,
 	}
 
 	t, err := template.ParseFiles("./static/index.html")
 	if err != nil {
-		log.Println("tempalte parsing err", err)
+		log.Fatalln("template parsing err", err)
 	}
 
 	err = t.Execute(w, pageVars)
 	
 	if err != nil {
-		log.Println("tempalte executing err", err)
+		log.Fatalln("template executing err", err)
 	}
 }
 
@@ -55,7 +51,7 @@ func SubmitProperty(w http.ResponseWriter, r *http.Request) {
 			log.Fatalln(err)
 		}
 		ref 		:= r.Header.Get("Referer")
-		propDetails := service.PropertyDetails{
+		propDetails := models.PropertyDetails{
 			Name	: propName,
 			Address : address,
 			Owners	: owner,
