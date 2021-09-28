@@ -5,18 +5,16 @@ import (
 	"log"
 	"strconv"
 	"strings"
-	"time"
 	"net/http"
+	"io/ioutil"
 
 	"github.com/hilgardvr/bora-finance-svc/service"
 	"github.com/hilgardvr/bora-finance-svc/models"
 )
 
-func HomePage(w http.ResponseWriter, r *http.Request) {
-	now := time.Now()
+func HomePageController(w http.ResponseWriter, r *http.Request) {
 	allProperties := service.ListProperties()
 	pageVars := models.PageVariables{
-		Date: now.Format("02-01-2006"),
 		Properties: allProperties,
 	}
 
@@ -32,38 +30,69 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func SubmitProperty(w http.ResponseWriter, r *http.Request) {
+func checkParsingError(e error, w http.ResponseWriter, r *http.Request) {
+	ref := r.Header.Get("Referer")
+	if e != nil {
+		log.Println("Error parsing value to int", e)
+		http.Redirect(w, r, ref, http.StatusSeeOther)
+	}
+}
+
+func SubmitPropertyController(w http.ResponseWriter, r *http.Request) {
+	ref := r.Header.Get("Referer")
 	if r.Method == "POST" {
-		r.ParseForm()
+		r.ParseMultipartForm(10 << 20)
 		propName 	:= r.FormValue("propertyName")
 		address 	:= r.FormValue("address")
 		owner 		:= strings.Split(r.FormValue("owner"), ",")
 		yield, err	:= strconv.Atoi(r.FormValue("yield"))
-		if err != nil {
-			log.Fatalln(err)
-		}
+		checkParsingError(err, w, r)
 		value, err	:= strconv.Atoi(r.FormValue("value"))
+		checkParsingError(err, w, r)
+		numNfts, err 	:= strconv.Atoi(r.FormValue("numnfts"))
+		// service.CheckErr(err)
+		checkParsingError(err, w, r)
+		nfts := []string{"placeholder"}
+		file, handler, err := r.FormFile("picture")
 		if err != nil {
-			log.Fatalln(err)
+			log.Println("Error Retrieving the File")
+        	log.Println(err)
+        	return
 		}
-		nfts, err 	:= strconv.Atoi(r.FormValue("nfts"))
+		log.Printf("Uploaded File: %+v\n", handler.Filename)
+		log.Printf("File Size: %+v\n", handler.Size)
+		log.Printf("MIME Header: %+v\n", handler.Header)
+		// Create a temporary file within our temp-images directory that follows
+    	// a particular naming pattern
+		tempFile, err := ioutil.TempFile("temp-images", "upload-*.png")
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
 		}
-		ref 		:= r.Header.Get("Referer")
+		defer tempFile.Close()
+		// read all of the contents of our uploaded file into a
+		// byte array
+		fileBytes, err := ioutil.ReadAll(file)
+		if err != nil {
+			log.Println(err)
+			fileBytes = nil
+		}
+		// write this byte array to our temporary file
+		tempFile.Write(fileBytes)
+		// return that we have successfully uploaded our file!
+		log.Printf("Successfully Uploaded File\n")
 		propDetails := models.PropertyDetails{
-			Name	: propName,
-			Address : address,
-			Owners	: owner,
-			Yield	: yield,
-			Value	: value,
-			NFTs	: nfts,
+			PropName		: propName,
+			Address 		: address,
+			Owners			: owner,
+			ExpectedYield	: yield,
+			Value			: value,
+			NumNFTs			: numNfts,
+			NFTs			: nfts,
+			Picture			: fileBytes,
 		}
-		// log.Println(ref)
 		service.AddProperty(propDetails)
-		http.Redirect(w, r, ref, http.StatusSeeOther)
 	} else {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Redirect(w, r, ref, http.StatusSeeOther)
 	}
 }
 

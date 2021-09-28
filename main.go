@@ -17,9 +17,8 @@ const port = ":9000"
 func main() {
 	// http.Handle("/", http.FileServer(http.Dir("./static")))
 	log.Println("server running on port", port)
-	http.HandleFunc("/", controllers.HomePage)
-	http.HandleFunc("/home", controllers.HomePage)
-	http.HandleFunc("/submitProperty", controllers.SubmitProperty)
-	// http.HandleFunc("/test", controllers.Test)
+	http.HandleFunc("/", controllers.HomePageController)
+	http.HandleFunc("/home", controllers.HomePageController)
+	http.HandleFunc("/submitProperty", controllers.SubmitPropertyController)
 	log.Fatal(http.ListenAndServe(port, nil))
 }

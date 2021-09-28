@@ -1,16 +1,24 @@
 package service
 
 import (
-	"log"
-	"encoding/json"
-	"net/http"
 	"bytes"
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
+	"log"
+	"net/http"
+
 	"github.com/hilgardvr/bora-finance-svc/models"
 )
 
 //todo replace with db
 var properties []models.PropertyDetails
+
+func CheckErr(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
 
 //private func to update the oracle
 func updateOracle(properties []models.PropertyDetails) {
@@ -18,19 +26,23 @@ func updateOracle(properties []models.PropertyDetails) {
 	propertiesLength := len(properties)
 
 	reqBody, err := json.Marshal(propertiesLength)
+	CheckErr(err)
 
-	if err != nil {
-		log.Fatalln(err)
-	}
+	//key, err := ioutil.ReadFile("/home/hilgard/workspace/plutus/plutus-pioneer-program/code/week06/oracle.cid")
+	//checkErr(err)
+	//url := fmt.Sprintf("http://127.0.0.1:8080/api/new/contract/instance/%s/endpoint/update", key)
+
+    key, err := ioutil.ReadFile("/home/hilgard/workspace/bora-finance-plutus/bora-oracle/oracle.cid")
+	CheckErr(err)
+    log.Println(key)
+	url := fmt.Sprintf("http://127.0.0.1:8080/api/new/contract/instance/%s/endpoint/update", key)
 
 	resp, err := http.Post(
-		"http://127.0.0.1:8080/api/new/contract/instance/a8718d09-bd90-4caa-b70d-7d3c8a21023b/endpoint/update", 
+		url,
 		"application/json", 
 		bytes.NewBuffer(reqBody))
 
-	if err != nil {
-		log.Fatalln(err)
-	}
+    CheckErr(err)
 
 	defer resp.Body.Close()
 

@@ -2,69 +2,86 @@
 <html>
     <head>
         <title>Bora Finance</title>
+        <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+        <link rel="stylesheet" href="styles.css">
     </head>
     <body>
-        <p> <b>Bora Finance</b> </p>
-        <p>The date today is {{.Date}}</p>
+        <header>
+            <h1>Bora Finance </h1>
+            <h4>Invest or get funding for properties from anywher</h2>
+        </header>
+        <div>
 
-        <form action="/submitProperty" method="POST">
-            <div>
+            <h4>List a property</h4>
+
+            <form enctype="multipart/form-data" action="/submitProperty" method="POST">
                 <div>
-                    <label for="propertyName">Name of the property to list</label> 
-                    <input id="propertyName" name="propertyName" type="text">
+                    <div>
+                        <label for="propertyName">Name of the property to list</label> 
+                        <input id="propertyName" name="propertyName" type="text" value="Warehouse">
+                    </div>
+                    <div>
+                        <label for="address">Address of the property to list</label> 
+                        <input id="address" name="address" type="text" value="Waterfront">
+                    </div>
+                    <div>
+                        <label for="owner">Owner of the property to list</label> 
+                        <input id="owner" name="owner" type="text" value="Fanna,Brad,Hilgard">
+                    </div>
+                    <div>
+                        <label for="yield">Yield of the property to list</label> 
+                        <input id="yield" name="yield" type="number" value=8>
+                    </div>
+                    <div>
+                        <label for="value">Value of the property to list</label> 
+                        <input id="value" name="value" type="number" value=100000>
+                    </div>
+                    <div>
+                        <label for="numnfts">Number of NFTs of the property to list</label> 
+                        <input id="numnfts" name="numnfts" type="number" default=100000>
+                    </div>
+                    <div>
+                        <label for="picture">Picture</label> 
+                        <input id="picture" name="picture" type="file">
+                    </div>
                 </div>
-                <div>
-                    <label for="address">Address of the property to list</label> 
-                    <input id="address" name="address" type="text">
-                </div>
-                <div>
-                    <label for="owner">Owner of the property to list</label> 
-                    <input id="owner" name="owner" type="text">
-                </div>
-                <div>
-                    <label for="yield">Yield of the property to list</label> 
-                    <input id="yield" name="yield" type="text">
-                </div>
-                <div>
-                    <label for="value">Value of the property to list</label> 
-                    <input id="value" name="value" type="text">
-                </div>
-                <div>
-                    <label for="nfts">Number of NFTs of the property to list</label> 
-                    <input id="nfts" name="nfts" type="text">
-                </div>
-            </div>
-            <button type="submit" name="action">Submit</button>
-        </form>
+                <button type="submit" name="action">Submit</button>
+            </form>
+        </div>
 
         <div>
             <table>
-                <tr>
-                    <th>Name<th>
-                    <th>Address</th>
-                    <th>Owners</th>
-                    <th>Yield</th>
-                    <th>Value</th>
-                    <th>NFTs</th>
-                </tr>
-                <br>
-            {{ with .Properties }}
-                {{ range . }}
-                <tr>
-                    <td>{{ .Name }}</td>
-                    <td>{{ .Address }}</td>
-                    <td>{{ .Owners }}</td>
-                    <td>{{ .Yield }}</td>
-                    <td>{{ .Value }}</td>
-                    <td>{{ .NFTs }}</td>
-                </tr>
-                <br>
+                <thead>
+                    <tr>
+                        <th>Property Name</th>
+                        <th>Address</th>
+                        <th>Owners</th>
+                        <th>Yield</th>
+                        <th>Value</th>
+                        <th>Number NFTs</th>
+                        <th>NFTs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {{ with .Properties }}
+                    {{ range . }}
+                    <tr>
+                        <td>{{ .PropName }}</td>
+                        <td>{{ .Address }}</td>
+                        <td>{{ .Owners }}</td>
+                        <td>{{ .ExpectedYield }}</td>
+                        <td>{{ .Value }}</td>
+                        <td>{{ .NumNFTs }}</td>
+                        <td>{{ .NFTs }}</td>
+                    </tr>
+                    <br>
+                    {{ end }}
                 {{ end }}
-            {{ end }}
+                </tbody>
             </table>
         </div>
     </body>
     <script>
-        console.log("hey")
+        // console.log("test")
     </script>
 </html>
