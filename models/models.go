@@ -1,6 +1,7 @@
 package models
 
 type PropertyDetails struct {
+	Id					string		`json: "id"`
 	PropName			string		`json: "name"`
 	Address 			string		`json: "address"`
 	Owners				[]string	`json: "owners"`
@@ -8,6 +9,7 @@ type PropertyDetails struct {
 	Value 				int			`json: "value"`
 	NumNFTs				int			`json: "numNFTs"`
 	NFTs				[]string	`json: "nfts"`
+	PictureUrl			string		`json: "-"`
 	Picture				[]byte		`json: "-"`
 }
 

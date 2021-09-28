@@ -1,16 +1,24 @@
 package controllers
 
 import (
+	"fmt"
 	"html/template"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"strconv"
 	"strings"
-	"net/http"
-	"io/ioutil"
 
-	"github.com/hilgardvr/bora-finance-svc/service"
 	"github.com/hilgardvr/bora-finance-svc/models"
+	"github.com/hilgardvr/bora-finance-svc/service"
 )
+
+func ServeFiles(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(r.URL.Path)
+    // p := "." + r.URL.Path
+    p := "./temp-images/upload-983822252.png"
+    http.ServeFile(w, r, p)
+}
 
 func HomePageController(w http.ResponseWriter, r *http.Request) {
 	allProperties := service.ListProperties()
@@ -64,7 +72,8 @@ func SubmitPropertyController(w http.ResponseWriter, r *http.Request) {
 		log.Printf("MIME Header: %+v\n", handler.Header)
 		// Create a temporary file within our temp-images directory that follows
     	// a particular naming pattern
-		tempFile, err := ioutil.TempFile("temp-images", "upload-*.png")
+		imageName := "upload1.png"
+		tempFile, err := ioutil.TempFile("temp-images", imageName)
 		if err != nil {
 			log.Println(err)
 		}
@@ -80,7 +89,11 @@ func SubmitPropertyController(w http.ResponseWriter, r *http.Request) {
 		tempFile.Write(fileBytes)
 		// return that we have successfully uploaded our file!
 		log.Printf("Successfully Uploaded File\n")
+		id := fmt.Sprintf("%s%s",propName, address)
+		// fmt.Printf("Host: %s\n", r.Host)
+		url:= fmt.Sprintf("%s/%s", r.Host, imageName)
 		propDetails := models.PropertyDetails{
+			Id				: id,
 			PropName		: propName,
 			Address 		: address,
 			Owners			: owner,
@@ -89,6 +102,7 @@ func SubmitPropertyController(w http.ResponseWriter, r *http.Request) {
 			NumNFTs			: numNfts,
 			NFTs			: nfts,
 			Picture			: fileBytes,
+			PictureUrl		: url,
 		}
 		service.AddProperty(propDetails)
 	} else {

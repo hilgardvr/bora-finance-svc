@@ -28,10 +28,6 @@ func updateOracle(properties []models.PropertyDetails) {
 	reqBody, err := json.Marshal(propertiesLength)
 	CheckErr(err)
 
-	//key, err := ioutil.ReadFile("/home/hilgard/workspace/plutus/plutus-pioneer-program/code/week06/oracle.cid")
-	//checkErr(err)
-	//url := fmt.Sprintf("http://127.0.0.1:8080/api/new/contract/instance/%s/endpoint/update", key)
-
     key, err := ioutil.ReadFile("/home/hilgard/workspace/bora-finance-plutus/bora-oracle/oracle.cid")
 	CheckErr(err)
     log.Println(key)
