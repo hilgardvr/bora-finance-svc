@@ -52,51 +52,23 @@
     </div>
 
     <div>
-        <!-- <table>
-            <thead>
-                <tr>
-                    <th>Property Name</th>
-                    <th>Address</th>
-                    <th>Owners</th>
-                    <th>Yield</th>
-                    <th>Value</th>
-                    <th>Number NFTs</th>
-                    <th>NFTs</th>
-                </tr>
-            </thead>
-            <tbody> -->
-                {{ with .Properties }}
-                {{ range . }}
-                <div>
-                    <ul>
-                        <li><image style="width:150px" id="propPreview" src="http://localhost:9000/images"></li>
-                        <li>Property name: {{ .PropName }}</li>
-                        <li>Property address: {{ .Address }}</li>
-                        <li>Owner(s): {{ .Owners }}</li>
-                        <li>Yield %: {{ .ExpectedYield }}</li>
-                        <li>Property value: {{ .Value }}</li>
-                        <li>Number of NFT's issued: {{ .NumNFTs }}</li>
-                        <li>NFT's: {{ .NFTs }}</li>
-                    </ul>
-                        <!-- <tr>
-                            <td>{{ .PropName }}</td>
-                            <td>{{ .Address }}</td>
-                            <td>{{ .Owners }}</td>
-                            <td>{{ .ExpectedYield }}</td>
-                            <td>{{ .Value }}</td>
-                            <td>{{ .NumNFTs }}</td>
-                            <td>{{ .NFTs }}</td>
-                        </tr>
-                        <br> -->
-                </div>
-                {{ end }}
-                {{ end }}
-            <!-- </tbody>
-        </table> -->
+            {{ range . }}
+            <div>
+                <image style="width:150px" id="propPreview" src={{ .PictureUrl }}>
+                <!-- </image> "http://localhost:9000/images"> -->
+                <ul>
+                    <li>Property name: {{ .PropName }}</li>
+                    <li>Property address: {{ .Address }}</li>
+                    <li>Owner(s): {{ .Owners }}</li>
+                    <li>Yield %: {{ .ExpectedYield }}</li>
+                    <li>Property value: {{ .Value }}</li>
+                    <li>Number of NFT's issued: {{ .NumNFTs }}</li>
+                </ul>
+            </div>
+            {{ end }}
     </div>
 </body>
 <script>
-        // console.log("test")
 </script>
 
 </html>

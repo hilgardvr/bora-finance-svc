@@ -8,7 +8,6 @@ type PropertyDetails struct {
 	ExpectedYield		int			`json: "yield"`
 	Value 				int			`json: "value"`
 	NumNFTs				int			`json: "numNFTs"`
-	NFTs				[]string	`json: "nfts"`
 	PictureUrl			string		`json: "-"`
 	Picture				[]byte		`json: "-"`
 }
