@@ -1,19 +1,17 @@
 package controllers
 
 import (
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 
-	// "github.com/hilgardvr/bora-finance-svc/models"
 	"github.com/hilgardvr/bora-finance-svc/service"
 )
 
+//todo dynamic populate
 func ServeFiles(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("url:%s", r.URL.Path)
-    // p := "." + r.URL.Path
-    p := "./temp-images/upload-983822252.png"
+	// fmt.Printf("\nurl:%s\n", r.URL.Path)
+    p := "./uploads/mansion.jpg"
     http.ServeFile(w, r, p)
 }
 

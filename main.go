@@ -10,7 +10,6 @@ const port = ":9000"
 
 
 func main() {
-	// http.Handle("/", http.FileServer(http.Dir("./static")))
 	log.Println("server running on port", port)
 	http.HandleFunc("/", controllers.HomePageController)
 	http.HandleFunc("/images", controllers.ServeFiles)
