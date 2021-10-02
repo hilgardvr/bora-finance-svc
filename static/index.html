@@ -5,18 +5,24 @@
     <title>Bora Finance</title>
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
     <link rel="stylesheet" href="static/styles.css">
+    <link rel="shortcut icon" type="image/x-icon" href="/api/logo">
 </head>
 
 <body>
     <header>
-        <h1>Bora Finance </h1>
-        <h4>Tokenized Property Investments</h2>
+        <div>
+            <image style="width:150px" id="logo" src="/api/logo" }}>
+            <h1>Bora Finance </h1>
+        </div>
+        <div>
+            <h4>Location Independant Tokenized Property Investments</h2>
+        </div>
     </header>
     <div>
 
-        <h4>List a property</h4>
+        <h3>Tokenize a Property</h3>
 
-        <form enctype="multipart/form-data" action="/submitProperty" method="POST">
+        <form enctype="multipart/form-data" action="/api/submitProperty" method="POST">
             <div>
                 <div>
                     <label for="tokenName">Token name</label>
@@ -52,21 +58,41 @@
     </div>
 
     <div>
+        {{ if . }}
+            <h3>Tokenized Properties</h3>
             {{ range . }}
             <div>
+                <!-- todo fix dymanic -->
                 <!-- <image style="width:150px" id="propPreview" src={{ .PictureUrl }}> -->
-                <!-- </image> "http://localhost:9000/images"> -->
+                <image style="width:150px" id="propPreview" src="/api/images" }}>
                 <ul>
-                    <li>Property name: {{ .TokenName }}</li>
+                    <li>Token name: {{ .TokenName }}</li>
                     <li>Property address: {{ .Address }}</li>
                     <li>Owner(s): {{ .Owners }}</li>
-                    <li>Yield %: {{ .ExpectedYield }}</li>
+                    <li>Annual yield %: {{ .ExpectedYield }}</li>
                     <li>Property value: {{ .Value }}</li>
-                    <li>Number of NFT's issued: {{ .NumTokens }}</li>
+                    <li>Number of tokens: {{ .NumTokens }}</li>
                 </ul>
             </div>
             {{ end }}
+        {{ end }}
     </div>
+
+    <!-- <div>
+        <h3>Buy Tokens</h3>
+        <form enctype="multipart/form-data" action="/api/submitProperty" method="POST">
+            <div>
+                <div>
+                    <label for="tokenName">Token name</label>
+                    <input id="tokenName" name="tokenName" type="text" value="BoraMansion">
+                </div>
+                <div>
+                    <label for="amount">Amount</label>
+                    <input id="buyAmount" name="buyAmount" type="number" value="100">
+                </div>
+            </div>
+        </form>
+    </div> -->
 </body>
 <script>
 </script>

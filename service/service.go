@@ -28,17 +28,22 @@ func CheckErr(e error) {
 	}
 }
 
-func checkParsingError(e error, w http.ResponseWriter, r *http.Request) {
-	ref := r.Header.Get("Referer")
-	if e != nil {
-		log.Println("Error parsing value to int", e)
-		http.Redirect(w, r, ref, http.StatusSeeOther)
-	}
+func buyTokens(amount int) {
+
 }
 
+// func buyTokens(token string, amount int) {
+// 	//todo use token name?
+// 	reqBody, err := json.Marshal(amount)
+// 	if (err != nil) {
+// 		log.Println("Could not marshal", err)
+// 	}
 
-//private func to update the oracle
-func updateOracle(prop models.PropertyDetails) {
+
+// }
+
+//private func to mint tokens via pab
+func mintTokens(prop models.PropertyDetails) {
 
 	tokenName := models.TokenName{
 		TokenName: prop.TokenName,
@@ -49,15 +54,14 @@ func updateOracle(prop models.PropertyDetails) {
 	}
 	reqBody, err := json.Marshal(mintParams)
 	CheckErr(err)
-	fmt.Println(string(reqBody))
+	log.Println("Request body: ", string(reqBody))
 
 	minterCid := os.Getenv(BORA_MINTER_CID)
 	if (minterCid == "") {
 		minterCidFile := os.Getenv(BORA_CID_MINTER_FILE)
-		fmt.Printf("minter file: %s", minterCidFile)
+		log.Printf("Minter file used: %s", minterCidFile)
 		key, err := ioutil.ReadFile(minterCidFile)
 		CheckErr(err)
-		log.Println(key)
 		minterCid = string(key)
 	}
 	url := fmt.Sprintf("%s%s/endpoint/Mint", pabUrl, minterCid)
@@ -70,14 +74,14 @@ func updateOracle(prop models.PropertyDetails) {
 
 	defer resp.Body.Close()
 
-
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	log.Println(string(body))
+	log.Printf("Response status %s with body %s", resp.Status, string(body))
+
 }
 
 func uploadFile(r *http.Request) (string, []byte, error) {
@@ -113,7 +117,7 @@ func uploadFile(r *http.Request) (string, []byte, error) {
 }
 
 //todo validation of form values eg duplicates etc
-func parseForm(r *http.Request) (models.PropertyDetails, error) {
+func parseTokenizeForm(r *http.Request) (models.PropertyDetails, error) {
 	err := r.ParseMultipartForm(10 << 20)
 	properyDetails := models.PropertyDetails{}
 	if err != nil {
@@ -152,13 +156,26 @@ func parseForm(r *http.Request) (models.PropertyDetails, error) {
 	return propDetails, nil
 }
 
+func BuyTokens(r *http.Request) {
+	// err := r.ParseForm()
+	// if (err != nil) {
+	// 	log.Println("Error parsing buy form", err)
+	// 	panic(err)
+	// }
+	// tokenName 	:= r.FormValue("tokenName")
+	// amount  	:= r.FormValue("amount")
+
+
+	
+}
+
 func AddProperty(r *http.Request) error {
-	propertyDetails, err := parseForm(r)
+	propertyDetails, err := parseTokenizeForm(r)
 	if err != nil {
 		log.Println("Error parsing form: ", err)
 		return err
 	}
-	updateOracle(propertyDetails)
+	mintTokens(propertyDetails)
 	properties = append(properties, propertyDetails)
 	return nil
 }

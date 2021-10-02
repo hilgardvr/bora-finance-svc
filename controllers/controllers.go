@@ -14,6 +14,9 @@ func ServeFiles(w http.ResponseWriter, r *http.Request) {
     p := "./uploads/mansion.jpg"
     http.ServeFile(w, r, p)
 }
+func ServeFlavicon(w http.ResponseWriter, r *http.Request) {
+    http.ServeFile(w, r, "static/BoraLogo.png")
+}
 
 func HomePageController(w http.ResponseWriter, r *http.Request) {
 	allProperties := service.ListProperties()
@@ -28,6 +31,16 @@ func HomePageController(w http.ResponseWriter, r *http.Request) {
 	
 	if err != nil {
 		log.Fatalln("template executing err", err)
+	}
+}
+
+func BuyTokens(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		service.BuyTokens(r)
+		ref := r.Header.Get("Referer")
+		http.Redirect(w, r, ref, http.StatusSeeOther)
+	} else {
+		http.Error(w, "Expecting POST request", http.StatusMethodNotAllowed)
 	}
 }
 
