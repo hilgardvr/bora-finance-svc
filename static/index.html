@@ -10,7 +10,7 @@
 <body>
     <header>
         <h1>Bora Finance </h1>
-        <h4>Tokenized Properties Investments</h2>
+        <h4>Tokenized Property Investments</h2>
     </header>
     <div>
 
@@ -19,28 +19,28 @@
         <form enctype="multipart/form-data" action="/submitProperty" method="POST">
             <div>
                 <div>
-                    <label for="propertyName">Name of the property to list</label>
-                    <input id="propertyName" name="propertyName" type="text" value="Warehouse">
+                    <label for="tokenName">Token name</label>
+                    <input id="tokenName" name="tokenName" type="text" value="BoraMansion">
                 </div>
                 <div>
                     <label for="address">Address of the property to list</label>
-                    <input id="address" name="address" type="text" value="Waterfront">
+                    <input id="address" name="address" type="text" value="Waterfront, Cape Town">
                 </div>
                 <div>
                     <label for="owner">Owner of the property to list</label>
                     <input id="owner" name="owner" type="text" value="Fanna,Brad,Hilgard">
                 </div>
                 <div>
-                    <label for="yield">Yield of the property to list</label>
+                    <label for="yield">Rental yield %</label>
                     <input id="yield" name="yield" type="number" value=8>
                 </div>
                 <div>
                     <label for="value">Value of the property to list</label>
-                    <input id="value" name="value" type="number" value=100000>
+                    <input id="value" name="value" type="number" value=1000000>
                 </div>
                 <div>
-                    <label for="numnfts">Number of NFTs of the property to list</label>
-                    <input id="numnfts" name="numnfts" type="number" default=100000>
+                    <label for="numTokens">Number tokens to issue</label>
+                    <input id="numTokens" name="numTokens" type="number" value=1000>
                 </div>
                 <div>
                     <label for="picture">Picture</label>
@@ -54,15 +54,15 @@
     <div>
             {{ range . }}
             <div>
-                <image style="width:150px" id="propPreview" src={{ .PictureUrl }}>
+                <!-- <image style="width:150px" id="propPreview" src={{ .PictureUrl }}> -->
                 <!-- </image> "http://localhost:9000/images"> -->
                 <ul>
-                    <li>Property name: {{ .PropName }}</li>
+                    <li>Property name: {{ .TokenName }}</li>
                     <li>Property address: {{ .Address }}</li>
                     <li>Owner(s): {{ .Owners }}</li>
                     <li>Yield %: {{ .ExpectedYield }}</li>
                     <li>Property value: {{ .Value }}</li>
-                    <li>Number of NFT's issued: {{ .NumNFTs }}</li>
+                    <li>Number of NFT's issued: {{ .NumTokens }}</li>
                 </ul>
             </div>
             {{ end }}

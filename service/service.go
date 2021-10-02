@@ -17,6 +17,10 @@ import (
 //todo replace with db
 var properties []models.PropertyDetails
 const URL = "localhost:9000/uploads/"
+const BORA_CID_MINTER_FILE = "BORA_CID_MINTER_FILE"
+const BORA_MINTER_CID = "BORA_MINTER_CID"
+const BORA_PAB_URL = "BORA_PAB_URL"
+var pabUrl = os.Getenv(BORA_PAB_URL)
 
 func CheckErr(e error) {
 	if e != nil {
@@ -34,18 +38,29 @@ func checkParsingError(e error, w http.ResponseWriter, r *http.Request) {
 
 
 //private func to update the oracle
-func updateOracle(properties []models.PropertyDetails) {
+func updateOracle(prop models.PropertyDetails) {
 
-	propertiesLength := len(properties)
-
-	reqBody, err := json.Marshal(propertiesLength)
+	tokenName := models.TokenName{
+		TokenName: prop.TokenName,
+	}
+	mintParams := models.MintParams{
+		MpTokenName: tokenName,
+		MpAmount: prop.NumTokens,
+	}
+	reqBody, err := json.Marshal(mintParams)
 	CheckErr(err)
+	fmt.Println(string(reqBody))
 
-    key, err := ioutil.ReadFile("/home/hilgard/workspace/bora-finance-plutus/bora-oracle/oracle.cid")
-	CheckErr(err)
-    log.Println(key)
-	url := fmt.Sprintf("http://127.0.0.1:8080/api/new/contract/instance/%s/endpoint/update", key)
-
+	minterCid := os.Getenv(BORA_MINTER_CID)
+	if (minterCid == "") {
+		minterCidFile := os.Getenv(BORA_CID_MINTER_FILE)
+		fmt.Printf("minter file: %s", minterCidFile)
+		key, err := ioutil.ReadFile(minterCidFile)
+		CheckErr(err)
+		log.Println(key)
+		minterCid = string(key)
+	}
+	url := fmt.Sprintf("%s%s/endpoint/Mint", pabUrl, minterCid)
 	resp, err := http.Post(
 		url,
 		"application/json", 
@@ -83,7 +98,6 @@ func uploadFile(r *http.Request) (string, []byte, error) {
 	dst, err := os.Create(fmt.Sprintf("./uploads/%s", handler.Filename))
 	if err != nil {
 		log.Println("Error creating file", err)
-		panic(err)
 	}
 	defer dst.Close()
 	fileBytes, err := ioutil.ReadAll(file)
@@ -98,13 +112,14 @@ func uploadFile(r *http.Request) (string, []byte, error) {
 	return handler.Filename, fileBytes, err
 }
 
+//todo validation of form values eg duplicates etc
 func parseForm(r *http.Request) (models.PropertyDetails, error) {
 	err := r.ParseMultipartForm(10 << 20)
 	properyDetails := models.PropertyDetails{}
 	if err != nil {
 		return properyDetails, err
 	}
-	propName 	:= r.FormValue("propertyName")
+	propName 	:= r.FormValue("tokenName")
 	address 	:= r.FormValue("address")
 	owner 		:= strings.Split(r.FormValue("owner"), ",")
 	yield, err	:= strconv.Atoi(r.FormValue("yield"))
@@ -115,22 +130,22 @@ func parseForm(r *http.Request) (models.PropertyDetails, error) {
 	if err != nil {
 		return properyDetails, err
 	}
-	numNfts, err 	:= strconv.Atoi(r.FormValue("numnfts"))
+	numNfts, err 	:= strconv.Atoi(r.FormValue("numTokens"))
 	if err != nil {
 		return properyDetails, err
 	}
 	name, bytes, err := uploadFile(r)
 	if err != nil {
-		return properyDetails, err
+		log.Println("Error uploading file", err)
 	}
 	propDetails := models.PropertyDetails{
 		Id				: fmt.Sprintf("%s%s", propName, address),
-		PropName		: propName,
+		TokenName		: propName,
 		Address 		: address,
 		Owners			: owner,
 		ExpectedYield	: yield,
 		Value			: value,
-		NumNFTs			: numNfts,
+		NumTokens		: numNfts,
 		Picture			: bytes,
 		PictureUrl		: name,
 	}
@@ -140,11 +155,11 @@ func parseForm(r *http.Request) (models.PropertyDetails, error) {
 func AddProperty(r *http.Request) error {
 	propertyDetails, err := parseForm(r)
 	if err != nil {
-		log.Printf("Error adding property: ", err)
+		log.Println("Error parsing form: ", err)
 		return err
 	}
+	updateOracle(propertyDetails)
 	properties = append(properties, propertyDetails)
-	updateOracle(properties)
 	return nil
 }
 
@@ -160,12 +175,12 @@ func MakePropertyUrls(props []models.PropertyDetails) []models.PropertyDetails {
 		url := fmt.Sprintf("%s%s", URL, prop.PictureUrl)
 		urlProps = append(urlProps, models.PropertyDetails{
 			Id : prop.Id,
-			PropName : prop.PropName,
+			TokenName : prop.TokenName,
 			Address : prop.Address,
 			Owners : prop.Owners,
 			ExpectedYield : prop.ExpectedYield,
 			Value : prop.Value,
-			NumNFTs : prop.NumNFTs,
+			NumTokens : prop.NumTokens,
 			PictureUrl : url,
 			Picture : prop.Picture,
 		})
