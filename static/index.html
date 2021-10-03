@@ -40,10 +40,11 @@
                     <label for="yield">Rental yield %</label>
                     <input id="yield" name="yield" type="number" value=8>
                 </div>
-                <div>
+                <!-- value to be set on activation -->
+                <!-- <div>
                     <label for="value">Value of the property to list</label>
                     <input id="value" name="value" type="number" value=1000000>
-                </div>
+                </div> -->
                 <div>
                     <label for="numTokens">Number tokens to issue</label>
                     <input id="numTokens" name="numTokens" type="number" value=1000>
@@ -53,7 +54,7 @@
                     <input id="picture" name="picture" type="file">
                 </div>
             </div>
-            <button type="submit" name="action">Submit</button>
+            <button type="submit" name="action">List Property</button>
         </form>
     </div>
 
@@ -94,12 +95,22 @@
                     <input id="buyer" name="buyer" type="number" value="2">
                 </div>
             </div>
-            <button type="submit" name="action">Submit</button>
+            <button type="submit" name="action">Buy</button>
         </form>
     </div>
 
     <div>
         <h3>Seller Space</h3>
+            <div>
+                <h5>Set Price Per Token</h5>
+                <form enctype="multipart/form-data" action="/api/listProperty" method="POST">
+                    <div>
+                        <label for="amount">Amount</label>
+                        <input id="listAmount" name="amount" type="number" value=100>
+                    </div>
+                    <button type="submit" name="action">Set Price</button>
+                </form>
+            </div>
             <div>
                 <h5>Withdraw Tokens</h5>
                 <form enctype="multipart/form-data" action="/api/withdrawTokens" method="POST">
@@ -113,7 +124,7 @@
                             <input id="withdrawAmount" name="withdrawAmount" type="number" value="100">
                         </div>
                     </div>
-                    <button type="submit" name="action">Submit</button>
+                    <button type="submit" name="action">Withdraw Tokens</button>
                 </form>
             </div>
             <div>
@@ -129,13 +140,13 @@
                             <input id="withdrawAmount" name="withdrawAmount" type="number" value="100">
                         </div>
                     </div>
-                    <button type="submit" name="action">Submit</button>
+                    <button type="submit" name="action">Withdraw Funds</button>
                 </form>
             </div>
             <div>
                 <h5>Close</h5>
                 <form enctype="multipart/form-data" action="/api/close" method="POST">
-                    <button type="submit" name="action">Submit</button>
+                    <button type="submit" name="action">Close</button>
                 </form>
             </div>
         </div>

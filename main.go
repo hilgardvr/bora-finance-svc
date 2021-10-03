@@ -18,7 +18,7 @@ func main() {
 	http.HandleFunc("/api/images", controllers.ServeImages)
 	http.HandleFunc("/api/submitProperty", controllers.Mint)
 	http.HandleFunc("/api/buy", controllers.BuyTokens)
-	http.HandleFunc("/api/listPorperty", controllers.ListProperty)
+	http.HandleFunc("/api/listProperty", controllers.ListProperty)
 	http.HandleFunc("/api/withdrawTokens", controllers.WithdrawTokens)
 	http.HandleFunc("/api/withdrawFunds", controllers.WithdrawFunds)
 	http.HandleFunc("/api/close", controllers.Close)

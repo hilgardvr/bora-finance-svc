@@ -149,7 +149,6 @@ func listProperty(amount int) *http.Response {
 	url := fmt.Sprintf("%s%s/endpoint/List Property", pabUrl, sellerCid)
 	reqBody, err := json.Marshal(amount)
 	CheckErr(err)
-	// log.Println("Request body: ", string(reqBody))
 	resp, err := http.Post(
 		url,
 		"application/json", 
@@ -162,7 +161,7 @@ func listProperty(amount int) *http.Response {
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 
 	log.Printf("List response status %d with body %s", resp.StatusCode, string(body))

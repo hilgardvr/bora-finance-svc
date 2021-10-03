@@ -70,10 +70,11 @@ func parseTokenizeForm(r *http.Request) (models.PropertyDetails, error) {
 	if err != nil {
 		return properyDetails, err
 	}
-	value, err	:= strconv.Atoi(r.FormValue("value"))
-	if err != nil {
-		return properyDetails, err
-	}
+	// value to be set on listing of property
+	// value, err	:= strconv.Atoi(r.FormValue("value"))
+	// if err != nil {
+	// 	return properyDetails, err
+	// }
 	numNfts, err 	:= strconv.Atoi(r.FormValue("numTokens"))
 	if err != nil {
 		return properyDetails, err
@@ -88,7 +89,7 @@ func parseTokenizeForm(r *http.Request) (models.PropertyDetails, error) {
 		Address 		: address,
 		Owners			: owner,
 		ExpectedYield	: yield,
-		Value			: value,
+		Value			: 0,
 		NumTokens		: numNfts,
 		Picture			: bytes,
 		PictureUrl		: name,
@@ -96,36 +97,54 @@ func parseTokenizeForm(r *http.Request) (models.PropertyDetails, error) {
 	return propDetails, nil
 }
 
-func Mint(r *http.Request) error {
-	propertyDetails, err := parseTokenizeForm(r)
-	if err != nil {
-		log.Println("Error parsing form: ", err)
-		return err
+func checkMintingValues(pd models.PropertyDetails) bool {
+	if pd.NumTokens < 0 || pd.TokenName == "" {
+		return false
 	}
-	resp := mintTokens(propertyDetails)
-	// err = ListProperty(r)
-	// if err != nil {
-	// 	log.Println("Error listing prop from mint", err)
-	// }
-	if resp.StatusCode == 200 {
-		properties = append(properties, propertyDetails)
+	return true
+}
+
+func Mint(r *http.Request) error {
+	//only one property can be listed at this time
+	//todo expand
+	if len(properties) == 0 {
+		propertyDetails, err := parseTokenizeForm(r)
+		if err != nil {
+			log.Println("Error parsing form: ", err)
+			return err
+		}
+		isValid := checkMintingValues(propertyDetails)
+		if isValid {
+			resp := mintTokens(propertyDetails)
+			if resp.StatusCode == 200 {
+				properties = append(properties, propertyDetails)
+				if err != nil {
+					log.Println("Error listing prop price", err)
+					return err
+				}
+			} else {
+				msg := fmt.Sprintf("unsuccessfull call to mint pab - reponse %d: %s", resp.StatusCode, resp.Body)
+				log.Println(msg)
+				return errors.New(msg)
+			}
+		}
 		return nil
 	} else {
-		msg := fmt.Sprintf("unsuccessfull call to mint pab - reponse %d: %s", resp.StatusCode, resp.Body)
-		log.Println(msg)
-		return errors.New(msg)
+		return nil
 	}
 }
 
 func ListProperty(r *http.Request) error {
-	propertyDetails, err := parseTokenizeForm(r)
+	amount, err := strconv.Atoi(r.FormValue("amount"))
 	if err != nil {
-		log.Println("Error parsing form: ", err)
+		log.Println("Could not parse list amount", err)
 		return err
 	}
-	resp := listProperty(propertyDetails.NumTokens)
-	if resp.StatusCode == 200 {
-		properties = append(properties, propertyDetails)
+	resp := listProperty(amount)
+	if resp.StatusCode == http.StatusOK {
+		if len(properties) == 1{
+			properties[0].Value = amount * properties[0].NumTokens
+		}
 		return nil
 	} else {
 		msg := fmt.Sprintf("unsuccessfull call to list pab - reponse %d: %s", resp.StatusCode, resp.Body)
