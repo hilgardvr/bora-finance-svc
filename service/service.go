@@ -20,7 +20,7 @@ const URL = "localhost:9000/uploads/"
 
 func CheckErr(e error) {
 	if e != nil {
-		panic(e)
+		log.Println("Error", e)
 	}
 }
 
@@ -103,10 +103,10 @@ func Mint(r *http.Request) error {
 		return err
 	}
 	resp := mintTokens(propertyDetails)
-	err = ListProperty(r)
-	if err != nil {
-		log.Println("Error listing prop from mint", err)
-	}
+	// err = ListProperty(r)
+	// if err != nil {
+	// 	log.Println("Error listing prop from mint", err)
+	// }
 	if resp.StatusCode == 200 {
 		properties = append(properties, propertyDetails)
 		return nil

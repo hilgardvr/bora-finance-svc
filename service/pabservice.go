@@ -116,12 +116,14 @@ func close() *http.Response {
 	key, err := ioutil.ReadFile(sellerCidFile)
 	CheckErr(err)
 	sellerCid := string(key)
+	reqBody, err := json.Marshal([]models.PropertyDetails{})
+	CheckErr(err)
 	// fmt.Println("sellerCid", sellerCid)
 	url := fmt.Sprintf("%s%s/endpoint/Close", pabUrl, sellerCid)
 	resp, err := http.Post(
 		url,
 		"application/json", 
-		nil)
+		bytes.NewBuffer(reqBody))
 
     CheckErr(err)
 
