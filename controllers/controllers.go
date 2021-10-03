@@ -24,14 +24,13 @@ func ServeCss(w http.ResponseWriter, r *http.Request) {
 
 func HomePageController(w http.ResponseWriter, r *http.Request) {
 	allProperties := service.GetProperties()
-	urlProps := service.MakePropertyUrls(allProperties)
 
 	t, err := template.ParseFiles("./static/index.html")
 	if err != nil {
 		log.Fatalln("template parsing err", err)
 	}
 
-	err = t.Execute(w, urlProps)
+	err = t.Execute(w, allProperties)
 	
 	if err != nil {
 		log.Fatalln("template executing err", err)

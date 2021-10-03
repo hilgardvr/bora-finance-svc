@@ -14,8 +14,8 @@ import (
 	"github.com/hilgardvr/bora-finance-svc/models"
 )
 
-//todo replace with db
-var properties []models.PropertyDetails
+//todo move to db
+var properties 	[]models.PropertyDetails
 const URL = "localhost:9000/uploads/"
 
 func CheckErr(e error) {
@@ -89,10 +89,12 @@ func parseTokenizeForm(r *http.Request) (models.PropertyDetails, error) {
 		Address 		: address,
 		Owners			: owner,
 		ExpectedYield	: yield,
-		Value			: 0,
+		TokenPrice		: 0,
 		NumTokens		: numNfts,
 		Picture			: bytes,
 		PictureUrl		: name,
+		TokensSold		: 0,
+		SellerFunds		: 0,
 	}
 	return propDetails, nil
 }
@@ -143,7 +145,7 @@ func ListProperty(r *http.Request) error {
 	resp := listProperty(amount)
 	if resp.StatusCode == http.StatusOK {
 		if len(properties) == 1{
-			properties[0].Value = amount * properties[0].NumTokens
+			properties[0].TokenPrice = amount
 		}
 		return nil
 	} else {
@@ -154,7 +156,7 @@ func ListProperty(r *http.Request) error {
 }
 
 func BuyTokens(r *http.Request) error {
-	amount, err	:= strconv.Atoi(r.FormValue("buyAmount"))
+	tokenAmount, err	:= strconv.Atoi(r.FormValue("buyAmount"))
 	if err != nil {
 		log.Println("could not parse buy amount to int", err)
 		return err
@@ -162,7 +164,16 @@ func BuyTokens(r *http.Request) error {
 	 //todo
 	// tokenName 	:= r.FormValue("tokenName")
 	// buyer 		:= r.FormValue("buyer")
-	buyTokens(amount)
+	resp := buyTokens(tokenAmount)
+	if resp.StatusCode == http.StatusOK {
+		//we get a 200 response even though the buy amount goes over the
+		//available amount of tokens
+		if (properties[0].TokensSold + tokenAmount <= properties[0].NumTokens &&
+		properties[0].TokenPrice > 0) {
+			properties[0].TokensSold += tokenAmount
+			properties[0].SellerFunds += tokenAmount * properties[0].TokenPrice
+		}
+	}
 	return nil
 }
 
@@ -172,7 +183,12 @@ func WithdrawTokens(r *http.Request) error {
 		log.Println("could not parse withdraw tokens to int", err)
 		return err
 	}
-	withdrawTokens(amount)
+	resp := withdrawTokens(amount)
+	if resp.StatusCode == http.StatusOK {
+		if properties[0].NumTokens >= amount {
+			properties[0].NumTokens -= amount
+		}
+	}
 	return nil
 }
 
@@ -182,7 +198,12 @@ func WithdrawFund(r *http.Request) error {
 		log.Println("could not parse withdraw tokens to int", err)
 		return err
 	}
-	withdrawFunds(amount)
+	resp := withdrawFunds(amount)
+	if resp.StatusCode == http.StatusOK {
+		if properties[0].SellerFunds >= amount {
+			properties[0].SellerFunds -= amount
+		}
+	}
 	return nil
 }
 
@@ -195,23 +216,4 @@ func GetProperties() []models.PropertyDetails {
 	tmp := make([]models.PropertyDetails, len(properties))
 	copy(tmp, properties)
 	return tmp
-}
-
-func MakePropertyUrls(props []models.PropertyDetails) []models.PropertyDetails {
-	var urlProps []models.PropertyDetails
-	for _, prop := range props {
-		url := fmt.Sprintf("%s%s", URL, prop.PictureUrl)
-		urlProps = append(urlProps, models.PropertyDetails{
-			Id : prop.Id,
-			TokenName : prop.TokenName,
-			Address : prop.Address,
-			Owners : prop.Owners,
-			ExpectedYield : prop.ExpectedYield,
-			Value : prop.Value,
-			NumTokens : prop.NumTokens,
-			PictureUrl : url,
-			Picture : prop.Picture,
-		})
-	}
-	return urlProps
 }

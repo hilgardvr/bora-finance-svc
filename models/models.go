@@ -6,10 +6,12 @@ type PropertyDetails struct {
 	Address 			string		`json:"address"`
 	Owners				[]string	`json:"owners"`
 	ExpectedYield		int			`json:"yield"`
-	Value 				int			`json:"value"`
+	TokenPrice 			int			`json:"tokenPrice"`
 	NumTokens			int			`json:"numTokens"`
 	PictureUrl			string		`json:"-"`
 	Picture				[]byte		`json:"-"`
+	TokensSold			int			`json:"tokensSold"`
+	SellerFunds			int			`json:"sellerFunds"`
 }
 
 type TokenName struct {

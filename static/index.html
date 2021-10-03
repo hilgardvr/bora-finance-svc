@@ -18,8 +18,9 @@
             <h4>Location Independent Tokenized Property Investments</h2>
         </div>
     </header>
-    <div>
 
+    {{ if not . }}
+    <div>
         <h3>Tokenize a Property</h3>
 
         <form enctype="multipart/form-data" action="/api/submitProperty" method="POST">
@@ -57,10 +58,11 @@
             <button type="submit" name="action">List Property</button>
         </form>
     </div>
+    {{ end }}
 
     {{ if . }}
     <div>
-        <h3>Tokenized Properties</h3>
+        <h3>Tokenized Property</h3>
             {{ range . }}
             <div>
                 <!-- todo fix dymanic -->
@@ -71,36 +73,43 @@
                     <li>Property address: {{ .Address }}</li>
                     <li>Owner(s): {{ .Owners }}</li>
                     <li>Annual yield %: {{ .ExpectedYield }}</li>
-                    <li>Property value: {{ .Value }}</li>
+                    <li>Price per token: {{ .TokenPrice }}</li>
                     <li>Number of tokens: {{ .NumTokens }}</li>
+                    <li>Number of tokens sold: {{ .TokensSold }}</li>
                 </ul>
             </div>
             {{ end }}
     </div>
+    {{ end }}
 
+    {{ if . }}
     <div>
         <h3>Buyer Space</h3>
         <form enctype="multipart/form-data" action="/api/buy" method="POST">
             <div>
-                <div>
+                <!-- <div>
                     <label for="tokenName">Token name</label>
                     <input id="tokenName" name="tokenName" type="text" value="BoraMansion">
-                </div>
+                </div> -->
                 <div>
-                    <label for="buyAmount">Amount</label>
+                    <label for="buyAmount">Amount of tokens to buy</label>
                     <input id="buyAmount" name="buyAmount" type="number" value="100">
                 </div>
-                <div>
+                <!-- <div>
                     <label for="buyer">Buyer Number</label>
                     <input id="buyer" name="buyer" type="number" value="2">
-                </div>
+                </div> -->
             </div>
             <button type="submit" name="action">Buy</button>
         </form>
     </div>
+    {{ end }}
 
+    {{ if . }}
     <div>
         <h3>Seller Space</h3>
+        {{ range .}}
+            {{ if eq .TokenPrice 0}}
             <div>
                 <h5>Set Price Per Token</h5>
                 <form enctype="multipart/form-data" action="/api/listProperty" method="POST">
@@ -109,6 +118,27 @@
                         <input id="listAmount" name="amount" type="number" value=100>
                     </div>
                     <button type="submit" name="action">Set Price</button>
+                </form>
+            </div>
+            {{ end }}
+            {{ if gt .TokenPrice 0 }}
+            <div>
+                <h5>Available Funds: <b id="fundAmount">{{ .SellerFunds }}</b></h5>
+            </div>
+            <div>
+                <h5>Withdraw Funds</h5>
+                <form enctype="multipart/form-data" action="/api/withdrawFunds" method="POST">
+                    <div>
+                        <div>
+                            <label for="tokenName">Token name</label>
+                            <input id="tokenName" name="tokenName" type="text" value="BoraMansion">
+                        </div>
+                        <div>
+                            <label for="withdrawAmount">Amount</label>
+                            <input id="withdrawAmount" name="withdrawAmount" type="number" value="100">
+                        </div>
+                    </div>
+                    <button type="submit" name="action">Withdraw Funds</button>
                 </form>
             </div>
             <div>
@@ -128,28 +158,13 @@
                 </form>
             </div>
             <div>
-                <h5>Withdraw Funds</h5>
-                <form enctype="multipart/form-data" action="/api/withdrawFunds" method="POST">
-                    <div>
-                        <div>
-                            <label for="tokenName">Token name</label>
-                            <input id="tokenName" name="tokenName" type="text" value="BoraMansion">
-                        </div>
-                        <div>
-                            <label for="withdrawAmount">Amount</label>
-                            <input id="withdrawAmount" name="withdrawAmount" type="number" value="100">
-                        </div>
-                    </div>
-                    <button type="submit" name="action">Withdraw Funds</button>
-                </form>
-            </div>
-            <div>
                 <h5>Close</h5>
                 <form enctype="multipart/form-data" action="/api/close" method="POST">
                     <button type="submit" name="action">Close</button>
                 </form>
             </div>
-        </div>
+            {{ end }}
+        {{ end }}
     </div>
     {{ end }}
 </body>
