@@ -9,17 +9,21 @@ import (
 )
 
 //todo dynamic populate
-func ServeFiles(w http.ResponseWriter, r *http.Request) {
-	// fmt.Printf("\nurl:%s\n", r.URL.Path)
+func ServeImages(w http.ResponseWriter, r *http.Request) {
     p := "./uploads/mansion.jpg"
     http.ServeFile(w, r, p)
 }
+
 func ServeFlavicon(w http.ResponseWriter, r *http.Request) {
-    http.ServeFile(w, r, "static/BoraLogo.png")
+    http.ServeFile(w, r, "./static/BoraLogo.png")
+}
+
+func ServeCss(w http.ResponseWriter, r *http.Request) {
+    http.ServeFile(w, r, "./static/styles.css")
 }
 
 func HomePageController(w http.ResponseWriter, r *http.Request) {
-	allProperties := service.ListProperties()
+	allProperties := service.GetProperties()
 	urlProps := service.MakePropertyUrls(allProperties)
 
 	t, err := template.ParseFiles("./static/index.html")
@@ -35,7 +39,7 @@ func HomePageController(w http.ResponseWriter, r *http.Request) {
 }
 
 func BuyTokens(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
+	if r.Method == http.MethodPost {
 		service.BuyTokens(r)
 		ref := r.Header.Get("Referer")
 		http.Redirect(w, r, ref, http.StatusSeeOther)
@@ -44,9 +48,53 @@ func BuyTokens(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func SubmitPropertyController(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		service.AddProperty(r)
+func WithdrawTokens(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		service.WithdrawTokens(r)
+		ref := r.Header.Get("Referer")
+		http.Redirect(w, r, ref, http.StatusSeeOther)
+	} else {
+		http.Error(w, "Expecting POST request", http.StatusMethodNotAllowed)
+	}
+}
+
+func WithdrawFunds(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		service.WithdrawFund(r)
+		ref := r.Header.Get("Referer")
+		http.Redirect(w, r, ref, http.StatusSeeOther)
+	} else {
+		http.Error(w, "Expecting POST request", http.StatusMethodNotAllowed)
+	}
+}
+
+func Close(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		service.Close()
+		ref := r.Header.Get("Referer")
+		http.Redirect(w, r, ref, http.StatusSeeOther)
+	} else {
+		http.Error(w, "Expecting POST request", http.StatusMethodNotAllowed)
+	}
+}
+
+func ListProperty(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		err := service.ListProperty(r)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		} else {
+			ref := r.Header.Get("Referer")
+			http.Redirect(w, r, ref, http.StatusSeeOther)
+		}
+	} else {
+		http.Error(w, "Expecting POST request", http.StatusMethodNotAllowed)
+	}
+}
+
+func Mint(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		service.Mint(r)
 		ref := r.Header.Get("Referer")
 		http.Redirect(w, r, ref, http.StatusSeeOther)
 	} else {

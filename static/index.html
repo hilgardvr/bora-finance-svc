@@ -4,7 +4,7 @@
 <head>
     <title>Bora Finance</title>
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
-    <link rel="stylesheet" href="static/styles.css">
+    <link rel="stylesheet" href="/api/css">
     <link rel="shortcut icon" type="image/x-icon" href="/api/logo">
 </head>
 
@@ -15,7 +15,7 @@
             <h1>Bora Finance </h1>
         </div>
         <div>
-            <h4>Location Independant Tokenized Property Investments</h2>
+            <h4>Location Independent Tokenized Property Investments</h2>
         </div>
     </header>
     <div>
@@ -57,9 +57,9 @@
         </form>
     </div>
 
+    {{ if . }}
     <div>
-        {{ if . }}
-            <h3>Tokenized Properties</h3>
+        <h3>Tokenized Properties</h3>
             {{ range . }}
             <div>
                 <!-- todo fix dymanic -->
@@ -75,24 +75,72 @@
                 </ul>
             </div>
             {{ end }}
-        {{ end }}
     </div>
 
-    <!-- <div>
-        <h3>Buy Tokens</h3>
-        <form enctype="multipart/form-data" action="/api/submitProperty" method="POST">
+    <div>
+        <h3>Buyer Space</h3>
+        <form enctype="multipart/form-data" action="/api/buy" method="POST">
             <div>
                 <div>
                     <label for="tokenName">Token name</label>
                     <input id="tokenName" name="tokenName" type="text" value="BoraMansion">
                 </div>
                 <div>
-                    <label for="amount">Amount</label>
+                    <label for="buyAmount">Amount</label>
                     <input id="buyAmount" name="buyAmount" type="number" value="100">
                 </div>
+                <div>
+                    <label for="buyer">Buyer Number</label>
+                    <input id="buyer" name="buyer" type="number" value="2">
+                </div>
             </div>
+            <button type="submit" name="action">Submit</button>
         </form>
-    </div> -->
+    </div>
+
+    <div>
+        <h3>Seller Space</h3>
+            <div>
+                <h5>Withdraw Tokens</h5>
+                <form enctype="multipart/form-data" action="/api/withdrawTokens" method="POST">
+                    <div>
+                        <div>
+                            <label for="tokenName">Token name</label>
+                            <input id="tokenName" name="tokenName" type="text" value="BoraMansion">
+                        </div>
+                        <div>
+                            <label for="withdrawAmount">Amount</label>
+                            <input id="withdrawAmount" name="withdrawAmount" type="number" value="100">
+                        </div>
+                    </div>
+                    <button type="submit" name="action">Submit</button>
+                </form>
+            </div>
+            <div>
+                <h5>Withdraw Funds</h5>
+                <form enctype="multipart/form-data" action="/api/withdrawFunds" method="POST">
+                    <div>
+                        <div>
+                            <label for="tokenName">Token name</label>
+                            <input id="tokenName" name="tokenName" type="text" value="BoraMansion">
+                        </div>
+                        <div>
+                            <label for="withdrawAmount">Amount</label>
+                            <input id="withdrawAmount" name="withdrawAmount" type="number" value="100">
+                        </div>
+                    </div>
+                    <button type="submit" name="action">Submit</button>
+                </form>
+            </div>
+            <div>
+                <h5>Close</h5>
+                <form enctype="multipart/form-data" action="/api/close" method="POST">
+                    <button type="submit" name="action">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {{ end }}
 </body>
 <script>
 </script>

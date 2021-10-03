@@ -4,8 +4,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"bytes"
-	"encoding/json"
+
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -17,71 +17,11 @@ import (
 //todo replace with db
 var properties []models.PropertyDetails
 const URL = "localhost:9000/uploads/"
-const BORA_CID_MINTER_FILE = "BORA_CID_MINTER_FILE"
-const BORA_MINTER_CID = "BORA_MINTER_CID"
-const BORA_PAB_URL = "BORA_PAB_URL"
-var pabUrl = os.Getenv(BORA_PAB_URL)
 
 func CheckErr(e error) {
 	if e != nil {
 		panic(e)
 	}
-}
-
-func buyTokens(amount int) {
-
-}
-
-// func buyTokens(token string, amount int) {
-// 	//todo use token name?
-// 	reqBody, err := json.Marshal(amount)
-// 	if (err != nil) {
-// 		log.Println("Could not marshal", err)
-// 	}
-
-
-// }
-
-//private func to mint tokens via pab
-func mintTokens(prop models.PropertyDetails) {
-
-	tokenName := models.TokenName{
-		TokenName: prop.TokenName,
-	}
-	mintParams := models.MintParams{
-		MpTokenName: tokenName,
-		MpAmount: prop.NumTokens,
-	}
-	reqBody, err := json.Marshal(mintParams)
-	CheckErr(err)
-	log.Println("Request body: ", string(reqBody))
-
-	minterCid := os.Getenv(BORA_MINTER_CID)
-	if (minterCid == "") {
-		minterCidFile := os.Getenv(BORA_CID_MINTER_FILE)
-		log.Printf("Minter file used: %s", minterCidFile)
-		key, err := ioutil.ReadFile(minterCidFile)
-		CheckErr(err)
-		minterCid = string(key)
-	}
-	url := fmt.Sprintf("%s%s/endpoint/Mint", pabUrl, minterCid)
-	resp, err := http.Post(
-		url,
-		"application/json", 
-		bytes.NewBuffer(reqBody))
-
-    CheckErr(err)
-
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	log.Printf("Response status %s with body %s", resp.Status, string(body))
-
 }
 
 func uploadFile(r *http.Request) (string, []byte, error) {
@@ -156,31 +96,83 @@ func parseTokenizeForm(r *http.Request) (models.PropertyDetails, error) {
 	return propDetails, nil
 }
 
-func BuyTokens(r *http.Request) {
-	// err := r.ParseForm()
-	// if (err != nil) {
-	// 	log.Println("Error parsing buy form", err)
-	// 	panic(err)
-	// }
-	// tokenName 	:= r.FormValue("tokenName")
-	// amount  	:= r.FormValue("amount")
-
-
-	
-}
-
-func AddProperty(r *http.Request) error {
+func Mint(r *http.Request) error {
 	propertyDetails, err := parseTokenizeForm(r)
 	if err != nil {
 		log.Println("Error parsing form: ", err)
 		return err
 	}
-	mintTokens(propertyDetails)
-	properties = append(properties, propertyDetails)
+	resp := mintTokens(propertyDetails)
+	err = ListProperty(r)
+	if err != nil {
+		log.Println("Error listing prop from mint", err)
+	}
+	if resp.StatusCode == 200 {
+		properties = append(properties, propertyDetails)
+		return nil
+	} else {
+		msg := fmt.Sprintf("unsuccessfull call to mint pab - reponse %d: %s", resp.StatusCode, resp.Body)
+		log.Println(msg)
+		return errors.New(msg)
+	}
+}
+
+func ListProperty(r *http.Request) error {
+	propertyDetails, err := parseTokenizeForm(r)
+	if err != nil {
+		log.Println("Error parsing form: ", err)
+		return err
+	}
+	resp := listProperty(propertyDetails.NumTokens)
+	if resp.StatusCode == 200 {
+		properties = append(properties, propertyDetails)
+		return nil
+	} else {
+		msg := fmt.Sprintf("unsuccessfull call to list pab - reponse %d: %s", resp.StatusCode, resp.Body)
+		log.Println(msg)
+		return errors.New(msg)
+	}
+}
+
+func BuyTokens(r *http.Request) error {
+	amount, err	:= strconv.Atoi(r.FormValue("buyAmount"))
+	if err != nil {
+		log.Println("could not parse buy amount to int", err)
+		return err
+	}
+	 //todo
+	// tokenName 	:= r.FormValue("tokenName")
+	// buyer 		:= r.FormValue("buyer")
+	buyTokens(amount)
 	return nil
 }
 
-func ListProperties() []models.PropertyDetails {
+func WithdrawTokens(r *http.Request) error {
+	amount, err	:= strconv.Atoi(r.FormValue("withdrawAmount"))
+	if err != nil {
+		log.Println("could not parse withdraw tokens to int", err)
+		return err
+	}
+	withdrawTokens(amount)
+	return nil
+}
+
+func WithdrawFund(r *http.Request) error {
+	amount, err	:= strconv.Atoi(r.FormValue("withdrawAmount"))
+	if err != nil {
+		log.Println("could not parse withdraw tokens to int", err)
+		return err
+	}
+	withdrawFunds(amount)
+	return nil
+}
+
+func Close() error {
+	close()
+	return nil
+}
+
+func GetProperties() []models.PropertyDetails {
 	tmp := make([]models.PropertyDetails, len(properties))
 	copy(tmp, properties)
 	return tmp
