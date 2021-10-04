@@ -118,19 +118,15 @@ func Mint(r *http.Request) error {
 		isValid := checkMintingValues(propertyDetails)
 		if isValid {
 			resp := mintTokens(propertyDetails)
-			if resp.StatusCode == 200 {
+			if resp != nil && resp.StatusCode == http.StatusOK {
 				properties = append(properties, propertyDetails)
-				if err != nil {
-					log.Println("Error listing prop price", err)
-					return err
-				}
+				return nil
 			} else {
-				msg := fmt.Sprintf("unsuccessfull call to mint pab - reponse %d: %s", resp.StatusCode, resp.Body)
-				log.Println(msg)
-				return errors.New(msg)
+				return handleResponseError(resp)
 			}
+		} else {
+			return nil
 		}
-		return nil
 	} else {
 		return nil
 	}
@@ -149,9 +145,7 @@ func ListProperty(r *http.Request) error {
 		}
 		return nil
 	} else {
-		msg := fmt.Sprintf("unsuccessfull call to list pab - reponse %d: %s", resp.StatusCode, resp.Body)
-		log.Println(msg)
-		return errors.New(msg)
+		return handleResponseError(resp)
 	}
 }
 
@@ -165,7 +159,7 @@ func BuyTokens(r *http.Request) error {
 	// tokenName 	:= r.FormValue("tokenName")
 	// buyer 		:= r.FormValue("buyer")
 	resp := buyTokens(tokenAmount)
-	if resp.StatusCode == http.StatusOK {
+	if resp != nil && resp.StatusCode == http.StatusOK {
 		//we get a 200 response even though the buy amount goes over the
 		//available amount of tokens
 		if (properties[0].TokensSold + tokenAmount <= properties[0].NumTokens &&
@@ -173,8 +167,10 @@ func BuyTokens(r *http.Request) error {
 			properties[0].TokensSold += tokenAmount
 			properties[0].SellerFunds += tokenAmount * properties[0].TokenPrice
 		}
+		return nil
+	} else {
+		return handleResponseError(resp)
 	}
-	return nil
 }
 
 func WithdrawTokens(r *http.Request) error {
@@ -184,12 +180,14 @@ func WithdrawTokens(r *http.Request) error {
 		return err
 	}
 	resp := withdrawTokens(amount)
-	if resp.StatusCode == http.StatusOK {
-		if properties[0].NumTokens >= amount {
+	if resp != nil && resp.StatusCode == http.StatusOK {
+		if properties[0].NumTokens - properties[0].TokensSold >= amount {
 			properties[0].NumTokens -= amount
 		}
+		return nil
+	} else {
+		return handleResponseError(resp)
 	}
-	return nil
 }
 
 func WithdrawFund(r *http.Request) error {
@@ -199,10 +197,25 @@ func WithdrawFund(r *http.Request) error {
 		return err
 	}
 	resp := withdrawFunds(amount)
-	if resp.StatusCode == http.StatusOK {
+	if resp != nil && resp.StatusCode == http.StatusOK {
 		if properties[0].SellerFunds >= amount {
 			properties[0].SellerFunds -= amount
 		}
+		return nil
+	} else {
+		return handleResponseError(resp)
+	}	
+}
+
+func handleResponseError(resp *http.Response) error {
+	if resp == nil {
+		msg := "unsuccessfull call to withdraw funds pab - no response"
+		log.Println(msg)
+		return errors.New(msg)
+	} else if resp.StatusCode != http.StatusOK {
+		msg := fmt.Sprintf("unsuccessfull call to funds pab - reponse %d: %s", resp.StatusCode, resp.Body)
+		log.Println(msg)
+		return errors.New(msg)
 	}
 	return nil
 }

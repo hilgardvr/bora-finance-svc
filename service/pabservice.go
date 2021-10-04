@@ -197,15 +197,12 @@ func mintTokens(prop models.PropertyDetails) *http.Response {
 
     CheckErr(err)
 
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-
-	if err != nil {
-		log.Fatalln(err)
+	if err == nil {
+		defer resp.Body.Close()
+		body, err := ioutil.ReadAll(resp.Body)
+		CheckErr(err)
+		log.Printf("Mint response status %s with body %s", resp.Status, string(body))
 	}
-
-	log.Printf("Mint response status %s with body %s", resp.Status, string(body))
 
 	return resp
 
