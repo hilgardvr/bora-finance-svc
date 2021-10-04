@@ -26,8 +26,20 @@ var minterCidFile = os.Getenv(BORA_CID_MINTER_FILE)
 var sellerCidFile = os.Getenv(BORA_CID_SELLER_FILE)
 var buyer2CidFile = os.Getenv(BORA_CID_BUYER2_FILE)
 
+func getPabUrl() string {
+	if pabUrl == "" {
+		//set default value if unspecified in config assuming running locally
+		pabUrl = "http://127.0.0.1:9080/api/new/contract/instance/"
+	}
+	return pabUrl
+}
+
 func getSellerCid() string {
 	if sellerCid == "" {
+		if sellerCidFile == "" {
+			//set default value if unspecified in config assuming project is inside Bora Plutus project
+			sellerCidFile = "../Seller.cid"
+		}
 		key, err := ioutil.ReadFile(sellerCidFile)
 		CheckErr(err)
 		sellerCid = string(key)
@@ -37,6 +49,10 @@ func getSellerCid() string {
 
 func getMinterCid() string {
 	if minterCid == "" {
+		if minterCidFile == "" {
+			//set default value if unspecified in config assuming project is inside Bora Plutus project
+			minterCidFile = "../Minter.cid"
+		}
 		key, err := ioutil.ReadFile(minterCidFile)
 		CheckErr(err)
 		minterCid = string(key)
@@ -46,6 +62,10 @@ func getMinterCid() string {
 
 func getBuyer2Cid() string {
 	if buyer2Cid == "" {
+		if buyer2CidFile == "" {
+			//set default value if unspecified in config assuming project is inside Bora Plutus project
+			buyer2CidFile = "../Buyer2.cid"
+		}
 		key, err := ioutil.ReadFile(buyer2CidFile)
 		CheckErr(err)
 		buyer2Cid = string(key)
@@ -56,7 +76,7 @@ func getBuyer2Cid() string {
 func buyTokens(amount int) *http.Response {
 	buyer2Cid := getBuyer2Cid()
 	fmt.Println("buyer2Cid", buyer2Cid)
-	url := fmt.Sprintf("%s%s/endpoint/Buy Tokens", pabUrl, buyer2Cid)
+	url := fmt.Sprintf("%s%s/endpoint/Buy Tokens", getPabUrl(), buyer2Cid)
 	reqBody, err := json.Marshal(amount)
 	CheckErr(err)
 	// log.Println("Request body: ", string(reqBody))
@@ -83,7 +103,7 @@ func buyTokens(amount int) *http.Response {
 func withdrawFunds(amount int) *http.Response {
 	sellerCid := getSellerCid()
 	// fmt.Println("sellerCid", sellerCid)
-	url := fmt.Sprintf("%s%s/endpoint/Withdraw Funds", pabUrl, sellerCid)
+	url := fmt.Sprintf("%s%s/endpoint/Withdraw Funds", getPabUrl(), sellerCid)
 	reqBody, err := json.Marshal(amount)
 	CheckErr(err)
 	// log.Println("Request body: ", string(reqBody))
@@ -111,7 +131,7 @@ func withdrawFunds(amount int) *http.Response {
 func withdrawTokens(amount int) *http.Response {
 	sellerCid := getSellerCid()
 	// fmt.Println("sellerCid", sellerCid)
-	url := fmt.Sprintf("%s%s/endpoint/Withdraw Tokens", pabUrl, sellerCid)
+	url := fmt.Sprintf("%s%s/endpoint/Withdraw Tokens", getPabUrl(), sellerCid)
 	reqBody, err := json.Marshal(amount)
 	CheckErr(err)
 	// log.Println("Request body: ", string(reqBody))
@@ -141,7 +161,7 @@ func close() *http.Response {
 	fmt.Println("sellerCid", sellerCid)
 	reqBody, err := json.Marshal([]models.PropertyDetails{})
 	CheckErr(err)
-	url := fmt.Sprintf("%s%s/endpoint/Close", pabUrl, sellerCid)
+	url := fmt.Sprintf("%s%s/endpoint/Close", getPabUrl(), sellerCid)
 	resp, err := http.Post(
 		url,
 		"application/json", 
@@ -166,7 +186,7 @@ func close() *http.Response {
 func listProperty(amount int) *http.Response {
 	sellerCid := getSellerCid()
 	fmt.Println("sellerCid", sellerCid)
-	url := fmt.Sprintf("%s%s/endpoint/List Property", pabUrl, sellerCid)
+	url := fmt.Sprintf("%s%s/endpoint/List Property", getPabUrl(), sellerCid)
 	reqBody, err := json.Marshal(amount)
 	CheckErr(err)
 	resp, err := http.Post(
@@ -206,7 +226,7 @@ func mintTokens(prop models.PropertyDetails) *http.Response {
 	CheckErr(err)
 	log.Println("Request body: ", string(reqBody))
 
-	url := fmt.Sprintf("%s%s/endpoint/Mint", pabUrl, minterCid)
+	url := fmt.Sprintf("%s%s/endpoint/Mint", getPabUrl(), minterCid)
 	resp, err := http.Post(
 		url,
 		"application/json", 
