@@ -14,8 +14,15 @@ buyer2Pwd=/home/hilgard/workspace/Bora-Finance-Property-Sale/Buyer2.cid
 echo "setting BORA_CID_BUYER2_FILE to ${buyer2Pwd}"
 export BORA_CID_BUYER2_FILE=$buyer2Pwd
 
-echo "setting BORA_MINTER_CID to Minter.cid"
-export BORA_MINTER_CID=''
+minterCid=
+echo "setting BORA_MINTER_CID to ${minterCid}"
+export BORA_MINTER_CID=$minterCid
 
-echo "setting BORA_SELLER_CID to Seller.cid"
-export BORA_SELLER_CID=''
+sellerCid=
+echo "setting BORA_SELLER_CID to ${sellerCid}"
+export BORA_SELLER_CID=$sellerCid
+
+buyer2Cid=
+echo "setting BORA_BUYER2_CID to ${buyer2Cid}"
+export BORA_BUYER2_CID=$buyer2Cid
+
